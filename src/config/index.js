@@ -1,3 +1,5 @@
+const path = require('path');
+
 require('dotenv').config();
 
 module.exports = {
@@ -10,4 +12,5 @@ module.exports = {
     database: process.env.DB_NAME || 'medibook',
   },
   redisUrl: process.env.REDIS_URL || 'redis://localhost:6379',
+  auditLogPath: process.env.AUDIT_LOG_PATH || path.join(__dirname, '..', '..', 'logs', 'audit.log'),
 };
