@@ -4,6 +4,7 @@ const doctorRoutes = require('./routes/doctorRoutes');
 const appointmentRoutes = require('./routes/appointmentRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const waitlistRoutes = require('./routes/waitlistRoutes');
+const feedbackRoutes = require('./routes/feedbackRoutes');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
@@ -15,6 +16,7 @@ app.use('/doctors', doctorRoutes);
 app.use('/appointments', appointmentRoutes);
 app.use('/reports', reportRoutes);
 app.use('/waitlist', waitlistRoutes);
+app.use('/feedback', feedbackRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

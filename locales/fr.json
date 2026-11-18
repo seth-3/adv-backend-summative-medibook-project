@@ -1,0 +1,16 @@
+{
+  "locale": "fr-FR",
+  "title": "Évaluation du cours",
+  "instructions": "Veuillez répondre aux cinq questions ci-dessous avec vos propres mots. Il n'y a pas de bonne ou de mauvaise réponse.",
+  "dateLabel": "Date du jour",
+  "questions": [
+    "Quel sujet de ce cours avez-vous trouvé le plus difficile, et pourquoi ?",
+    "Décrivez un concept que vous n'avez compris qu'après les travaux pratiques. Qu'est-ce qui vous a permis de le comprendre ?",
+    "Comment votre façon de concevoir des bases de données ou des API a-t-elle changé depuis le début du trimestre ?",
+    "Que changeriez-vous dans la manière dont ce cours a été enseigné ou évalué ?",
+    "Comment comptez-vous appliquer ce que vous avez appris dans ce cours à l'avenir ?"
+  ],
+  "submit": "Envoyer mon avis",
+  "thankYou": "Merci ! Votre avis a bien été reçu.",
+  "switchLanguage": "English version"
+}
