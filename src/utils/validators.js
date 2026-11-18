@@ -1,3 +1,5 @@
+const { parseDateTime } = require('./time');
+
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_REGEX = /^[0-9+\-\s()]{7,20}$/;
 
@@ -57,4 +59,21 @@ function parseId(value) {
   return id > 0 && Number.isSafeInteger(id) ? id : null;
 }
 
-module.exports = { patientRules, doctorRules, validateFields, pickFields, parseId };
+// Checks the shape of a booking request (not the business rules).
+// Returns { errors, value } where value has the parsed ids and Date.
+function validateBookingInput(body) {
+  const data = body || {};
+  const errors = [];
+  const patientId = parseId(data.patient_id);
+  const doctorId = parseId(data.doctor_id);
+  const slot = parseDateTime(data.appt_datetime);
+
+  if (!patientId) errors.push('patient_id must be a positive whole number');
+  if (!doctorId) errors.push('doctor_id must be a positive whole number');
+  if (!slot) errors.push('appt_datetime must be a real date and time like "2026-12-10 09:30"');
+  return { errors, value: { patientId, doctorId, slot } };
+}
+
+module.exports = {
+  patientRules, doctorRules, validateFields, pickFields, parseId, validateBookingInput,
+};
