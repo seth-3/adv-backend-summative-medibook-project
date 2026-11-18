@@ -14,4 +14,8 @@ module.exports = {
 
   BUSY_DAY_THRESHOLD: 0.8, // busy day = more than 80% of the daily cap booked
   STATS_DAYS_AHEAD: 7,
+
+  // worker: how many times to retry a "slot freed" job if MySQL is down, and the wait between tries
+  WORKER_MAX_RETRIES: 3,
+  WORKER_RETRY_DELAY_MS: 2000,
 };

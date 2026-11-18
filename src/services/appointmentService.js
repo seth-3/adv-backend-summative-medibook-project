@@ -7,10 +7,13 @@ const { checkSlotRules } = require('../utils/slotRules');
 const { calculateRefund } = require('../utils/refund');
 const { parseDateTime, toSqlDateTime, toSqlDate } = require('../utils/time');
 const { MAX_APPOINTMENTS_PER_DAY } = require('../config/constants');
+const { logEvent } = require('./auditLogger');
+const queueService = require('./queueService');
 
 // Booking logic lives here (not in the controller) because the waitlist worker
 // books appointments too and must follow exactly the same rules.
-async function bookAppointment({ patientId, doctorId, slot }, now = new Date()) {
+// source is 'api' for normal bookings and 'waitlist' when the worker promotes someone.
+async function bookAppointment({ patientId, doctorId, slot }, now = new Date(), source = 'api') {
   const ruleError = checkSlotRules(slot, now);
   if (ruleError) throw new AppError(422, ruleError);
 
@@ -48,7 +51,10 @@ async function bookAppointment({ patientId, doctorId, slot }, now = new Date()) 
     }
   });
 
-  return appointmentModel.findById(appointmentId);
+  const appointment = await appointmentModel.findById(appointmentId);
+  await logEvent('APPOINTMENT_BOOKED', { source, ...summary(appointment) });
+  await runSafely('enqueue confirmation', () => queueService.enqueueNotification(summary(appointment)));
+  return appointment;
 }
 
 async function cancelAppointment(appointmentId, now = new Date()) {
@@ -70,7 +76,36 @@ async function cancelAppointment(appointmentId, now = new Date()) {
   });
 
   const appointment = await appointmentModel.findById(appointmentId);
+  await logEvent('APPOINTMENT_CANCELLED', {
+    ...summary(appointment), refund_percent: refund.percent, refund_amount: refund.amount,
+  });
+  // tell the worker a slot is free so it can promote the first waitlisted patient
+  await runSafely('notify waitlist', () => queueService.enqueueSlotFreed({
+    doctor_id: appointment.doctor_id, appt_datetime: appointment.appt_datetime,
+  }));
   return { appointment, refund };
+}
+
+function summary(appointment) {
+  return {
+    appointment_id: appointment.appointment_id,
+    patient_id: appointment.patient_id,
+    patient_name: appointment.patient_name,
+    doctor_id: appointment.doctor_id,
+    doctor_name: appointment.doctor_name,
+    appt_datetime: appointment.appt_datetime,
+  };
+}
+
+// The booking/cancellation is already saved in MySQL at this point,
+// so a Redis problem is logged but does not fail the request.
+async function runSafely(what, fn) {
+  try {
+    await fn();
+  } catch (err) {
+    console.error(`Could not ${what}:`, err.message);
+    await logEvent('QUEUE_ERROR', { action: what, error: err.message });
+  }
 }
 
 // 409 error that also tells the client it can join the waitlist
