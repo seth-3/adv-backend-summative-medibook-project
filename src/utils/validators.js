@@ -1,4 +1,4 @@
-const { parseDateTime } = require('./time');
+const { parseDateTime, isValidDate } = require('./time');
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_REGEX = /^[0-9+\-\s()]{7,20}$/;
@@ -74,6 +74,27 @@ function validateBookingInput(body) {
   return { errors, value: { patientId, doctorId, slot } };
 }
 
+// Checks a waitlist request: { patient_id, doctor_id, date: "YYYY-MM-DD" }.
+// today is passed in ("YYYY-MM-DD") so the function stays easy to test.
+function validateWaitlistInput(body, today) {
+  const data = body || {};
+  const errors = [];
+  const patientId = parseId(data.patient_id);
+  const doctorId = parseId(data.doctor_id);
+
+  if (!patientId) errors.push('patient_id must be a positive whole number');
+  if (!doctorId) errors.push('doctor_id must be a positive whole number');
+  if (!isValidDate(data.date)) errors.push('date must be a real date like "2026-12-10"');
+  else if (data.date < today) errors.push('date cannot be in the past');
+  return { errors, value: { patientId, doctorId, date: data.date } };
+}
+
 module.exports = {
-  patientRules, doctorRules, validateFields, pickFields, parseId, validateBookingInput,
+  patientRules,
+  doctorRules,
+  validateFields,
+  pickFields,
+  parseId,
+  validateBookingInput,
+  validateWaitlistInput,
 };
