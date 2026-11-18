@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 900" font-family="Helvetica, Arial, sans-serif" font-size="13">
+  <rect width="1180" height="900" fill="#ffffff"/>
+  <text x="590" y="34" text-anchor="middle" font-size="20" font-weight="bold" fill="#1f2937">MediBook database schema (3NF)</text>
+  <text x="590" y="56" text-anchor="middle" font-size="12" fill="#6b7280">PK = primary key · FK = foreign key · UQ = unique · NN = not null · GEN = generated column</text>
+
+  <!-- patients -->
+  <g transform="translate(40,90)">
+    <rect width="360" height="190" rx="6" fill="#f9fafb" stroke="#2563eb" stroke-width="2"/>
+    <rect width="360" height="34" rx="6" fill="#2563eb"/>
+    <text x="14" y="23" font-size="15" font-weight="bold" fill="#fff">patients</text>
+    <g fill="#111827">
+      <text x="14" y="58" font-weight="bold">🔑 patient_id</text><text x="180" y="58">INT UNSIGNED</text><text x="300" y="58" fill="#b45309">PK, AI</text>
+      <text x="14" y="84">full_name</text><text x="180" y="84">VARCHAR(100)</text><text x="300" y="84" fill="#b45309">NN</text>
+      <text x="14" y="110">email</text><text x="180" y="110">VARCHAR(255)</text><text x="300" y="110" fill="#b45309">NN, UQ</text>
+      <text x="14" y="136">phone</text><text x="180" y="136">VARCHAR(20)</text><text x="300" y="136" fill="#b45309">NN</text>
+      <text x="14" y="162">created_at</text><text x="180" y="162">DATETIME</text><text x="300" y="162" fill="#b45309">NN</text>
+    </g>
+    <text x="14" y="182" font-size="11" fill="#6b7280">CHECK: full_name not blank</text>
+  </g>
+
+  <!-- doctors -->
+  <g transform="translate(780,90)">
+    <rect width="360" height="216" rx="6" fill="#f9fafb" stroke="#059669" stroke-width="2"/>
+    <rect width="360" height="34" rx="6" fill="#059669"/>
+    <text x="14" y="23" font-size="15" font-weight="bold" fill="#fff">doctors</text>
+    <g fill="#111827">
+      <text x="14" y="58" font-weight="bold">🔑 doctor_id</text><text x="180" y="58">INT UNSIGNED</text><text x="300" y="58" fill="#b45309">PK, AI</text>
+      <text x="14" y="84">full_name</text><text x="180" y="84">VARCHAR(100)</text><text x="300" y="84" fill="#b45309">NN</text>
+      <text x="14" y="110">specialty</text><text x="180" y="110">VARCHAR(100)</text><text x="300" y="110" fill="#b45309">NN</text>
+      <text x="14" y="136">consultation_fee</text><text x="180" y="136">DECIMAL(10,2)</text><text x="300" y="136" fill="#b45309">NN</text>
+      <text x="14" y="162">room</text><text x="180" y="162">VARCHAR(10)</text><text x="300" y="162" fill="#b45309">NN</text>
+      <text x="14" y="188">created_at</text><text x="180" y="188">DATETIME</text><text x="300" y="188" fill="#b45309">NN</text>
+    </g>
+    <text x="14" y="208" font-size="11" fill="#6b7280">CHECK: consultation_fee &gt;= 0, full_name not blank</text>
+  </g>
+
+  <!-- appointments -->
+  <g transform="translate(250,380)">
+    <rect width="680" height="480" rx="6" fill="#f9fafb" stroke="#7c3aed" stroke-width="2"/>
+    <rect width="680" height="34" rx="6" fill="#7c3aed"/>
+    <text x="14" y="23" font-size="15" font-weight="bold" fill="#fff">appointments</text>
+    <g fill="#111827">
+      <text x="14" y="58" font-weight="bold">🔑 appointment_id</text><text x="190" y="58">INT UNSIGNED</text><text x="420" y="58" fill="#b45309">PK, AI</text>
+      <text x="14" y="84" font-weight="bold">🔗 patient_id</text><text x="190" y="84">INT UNSIGNED</text><text x="420" y="84" fill="#b45309">FK → patients, NN</text>
+      <text x="14" y="110" font-weight="bold">🔗 doctor_id</text><text x="190" y="110">INT UNSIGNED</text><text x="420" y="110" fill="#b45309">FK → doctors, NN</text>
+      <text x="14" y="136">appt_datetime</text><text x="190" y="136">DATETIME</text><text x="420" y="136" fill="#b45309">NN</text>
+      <text x="14" y="162">amount_paid</text><text x="190" y="162">DECIMAL(10,2)</text><text x="420" y="162" fill="#b45309">NN</text>
+      <text x="14" y="188">status</text><text x="190" y="188">ENUM('BOOKED','CANCELLED')</text><text x="420" y="188" fill="#b45309">NN, default BOOKED</text>
+      <text x="14" y="214">booked_on</text><text x="190" y="214">DATETIME</text><text x="420" y="214" fill="#b45309">NN</text>
+      <text x="14" y="240">cancelled_at</text><text x="190" y="240">DATETIME</text><text x="420" y="240" fill="#6b7280">NULL</text>
+      <text x="14" y="266">refund_percent</text><text x="190" y="266">TINYINT UNSIGNED</text><text x="420" y="266" fill="#6b7280">NULL</text>
+      <text x="14" y="292">refund_amount</text><text x="190" y="292">DECIMAL(10,2)</text><text x="420" y="292" fill="#6b7280">NULL</text>
+      <text x="14" y="318">appt_date</text><text x="190" y="318">DATE</text><text x="420" y="318" fill="#b45309">GEN = DATE(appt_datetime)</text>
+      <text x="14" y="344">active_slot</text><text x="190" y="344">DATETIME</text><text x="420" y="344" fill="#b45309">GEN, NULL if cancelled</text>
+    </g>
+    <line x1="10" y1="358" x2="670" y2="358" stroke="#d1d5db"/>
+    <text x="14" y="380" font-size="13" font-weight="bold" fill="#dc2626">UQ (doctor_id, active_slot)</text>
+    <text x="14" y="398" font-size="12" fill="#dc2626">→ a doctor can't have two BOOKED appointments at the same date/time (cancelled rows have NULL, so they don't block)</text>
+    <text x="14" y="422" font-size="12" fill="#374151">CHECK slot: minute IN (0,30), second = 0, hour 9–16 (09:00–16:30 starts, ends by 17:00)</text>
+    <text x="14" y="442" font-size="12" fill="#374151">CHECK amount_paid &gt;= 0 · CHECK cancelled ⇔ cancelled_at + refund set, refund ≤ amount_paid</text>
+    <text x="14" y="462" font-size="12" fill="#374151">CHECK refund_percent IN (0, 50, 100)</text>
+  </g>
+
+  <!-- relationships -->
+  <g stroke="#374151" stroke-width="1.6" fill="none">
+    <path d="M160 280 V470 H250"/>
+    <path d="M1040 306 V496 H930"/>
+    <!-- one marks -->
+    <line x1="150" y1="292" x2="170" y2="292"/><line x1="150" y1="298" x2="170" y2="298"/>
+    <line x1="1030" y1="318" x2="1050" y2="318"/><line x1="1030" y1="324" x2="1050" y2="324"/>
+    <!-- crow's feet (many) -->
+    <path d="M238 470 L250 462 M238 470 L250 478 M238 462 V478"/>
+    <path d="M942 496 L930 488 M942 496 L930 504 M942 488 V504"/>
+  </g>
+  <text x="172" y="340" fill="#374151">1 patient : N appointments</text>
+  <text x="870" y="360" fill="#374151">1 doctor : N appointments</text>
+</svg>
