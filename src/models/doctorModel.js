@@ -12,6 +12,13 @@ async function findById(id, connection = pool) {
   return rows[0] || null;
 }
 
+// Locks the doctor's row until the transaction ends. Two bookings for the same doctor
+// then run one after the other, so the 12-per-day count can't be raced.
+async function lockById(connection, id) {
+  const [rows] = await connection.query(`SELECT ${COLUMNS} FROM doctors WHERE doctor_id = ? FOR UPDATE`, [id]);
+  return rows[0] || null;
+}
+
 async function create({ full_name, specialty, consultation_fee, room }) {
   const [result] = await pool.query(
     'INSERT INTO doctors (full_name, specialty, consultation_fee, room) VALUES (?, ?, ?, ?)',
@@ -31,4 +38,4 @@ async function remove(id) {
   return result.affectedRows > 0;
 }
 
-module.exports = { findAll, findById, create, update, remove };
+module.exports = { findAll, findById, lockById, create, update, remove };
